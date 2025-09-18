@@ -44,11 +44,14 @@ class TranscriptSegment:
         
         # Find continuous ranges of matching words
         i = 0
+        last_matched_idx = -1  # Track position to avoid overlapping ranges
         while i < len(edited_words):
-            # Find where this edited word appears in original
+            # Find where this edited word appears in original (after last match)
             word = edited_words[i]
             try:
-                start_idx = original_words.index(word, i if i < len(original_words) else 0)
+                # Start search after the last matched position to prevent overlaps
+                search_start = max(0, last_matched_idx + 1)
+                start_idx = original_words.index(word, search_start)
                 
                 # Find continuous sequence
                 end_idx = start_idx
@@ -64,6 +67,7 @@ class TranscriptSegment:
                     range_start = self.word_timings[start_idx].start_time
                     range_end = self.word_timings[end_idx].end_time
                     active_ranges.append((range_start, range_end))
+                    last_matched_idx = end_idx  # Update position tracker
                 
                 i = j
             except ValueError:
@@ -213,6 +217,18 @@ class AppConfig:
     DEFAULT_OUTPUT_FORMAT = 'mp4'
     DEFAULT_AUDIO_CODEC = 'aac'
     DEFAULT_VIDEO_CODEC = 'libx264'
+
+    # Encoding settings for speed/quality trade-offs
+    ffmpeg_preset: str = 'veryfast'  # used with libx264/libx265
+    crf: int = 23  # used with CRF-based encoders like libx264
+    prefer_gpu_encoding: bool = True  # try GPU encoders first if available
+    gpu_codecs: List[str] = field(default_factory=lambda: ['h264_nvenc', 'hevc_nvenc', 'h264_qsv'])
+    audio_bitrate: str = '128k'  # lower bitrate can speed up encoding slightly
+    target_bitrate: Optional[str] = None  # e.g., '3000k'; if set, overrides CRF
+    threads: Optional[int] = None  # None = auto-detect
+
+    # Fast trim (no re-encode) option
+    prefer_fast_trim: bool = True  # if True, try stream-copy-based trimming (keyframe aligned)
     
     # GUI settings
     window_width: int = 1200

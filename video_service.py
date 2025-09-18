@@ -2,9 +2,12 @@
 
 import os
 import tempfile
+import subprocess
+import shutil
 from typing import List, Tuple, Optional, Callable
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from models import TranscriptData, TranscriptSegment, AppConfig
+from ffmpeg_utils import FFmpegUtils, FFmpegError
 
 
 class VideoService:
@@ -54,6 +57,35 @@ class VideoService:
             if not active_ranges:
                 raise ValueError("No active time ranges found in transcript")
             
+            # Debug logging to help diagnose repetition issues
+            print(f"DEBUG: Found {len(active_ranges)} active ranges:")
+            for i, (start, end) in enumerate(active_ranges):
+                print(f"  Range {i+1}: {start:.3f}s - {end:.3f}s (duration: {end-start:.3f}s)")
+            
+            # Attempt fast trim (no re-encode) if enabled
+            if getattr(self.config, 'prefer_fast_trim', False):
+                try:
+                    if progress_callback:
+                        progress_callback("Attempting fast trim (no re-encode)...", 0.25, "Using FFmpeg stream copy for keyframe-aligned cuts")
+                    print("DEBUG: Using fast trim (stream copy) pipeline")
+                    self._fast_trim_stream_copy(video_path, active_ranges, output_path, progress_callback)
+                    # Cleanup video object since we won't use MoviePy path
+                    video.close()
+                    if progress_callback:
+                        progress_callback("Fast trim complete!", 1.0, None)
+                    return output_path
+                except Exception as fe:
+                    # Fall back to re-encode path
+                    print(f"DEBUG: Fast trim failed, falling back to re-encode: {fe}")
+                    if progress_callback:
+                        progress_callback("Fast trim unavailable, falling back to standard encoding...", 0.28, str(fe))
+                    # Ensure video object is still valid for fallback
+                    if video.reader is None or video.reader.closed:
+                        print("DEBUG: Reloading video for fallback")
+                        video.close()
+                        video = VideoFileClip(video_path)
+            else:
+                print("DEBUG: Using standard re-encode pipeline")
             if progress_callback:
                 progress_callback(f"Creating {len(active_ranges)} video clips from time ranges...", 0.3)
             
@@ -86,8 +118,20 @@ class VideoService:
             if progress_callback:
                 progress_callback("Concatenating video clips...", 0.7)
             
+            # Choose faster concat method when possible
+            concat_method = "compose"
+            try:
+                base_size = clips[0].size if hasattr(clips[0], 'size') else None
+                base_fps = getattr(clips[0], 'fps', None)
+                same_size = all((getattr(c, 'size', None) == base_size) for c in clips)
+                same_fps = all((getattr(c, 'fps', None) == base_fps) for c in clips)
+                if same_size and same_fps and base_size is not None and base_fps is not None:
+                    concat_method = "chain"  # much faster, avoids compositing
+            except Exception:
+                concat_method = "compose"
+            
             # Concatenate all clips
-            final_video = concatenate_videoclips(clips, method="compose")
+            final_video = concatenate_videoclips(clips, method=concat_method)
             
             if progress_callback:
                 progress_callback("Writing output video file...", 0.8)
@@ -262,6 +306,55 @@ class VideoService:
         )
         
         return backup_data
+
+    def _parse_bitrate_kbps(self, bitrate_str: Optional[str]) -> Optional[float]:
+        """Parse bitrate like '3000k' to kbps float."""
+        if not bitrate_str:
+            return None
+        try:
+            s = bitrate_str.strip().lower()
+            if s.endswith('k'):
+                return float(s[:-1])
+            if s.endswith('m'):
+                return float(s[:-1]) * 1024.0
+            return float(s) / 1000.0
+        except Exception:
+            return None
+
+    def _build_encoding_params(self, codec: str):
+        """Build MoviePy/ffmpeg encoding parameters based on AppConfig and codec."""
+        preset = self.config.ffmpeg_preset
+        threads = self.config.threads
+        audio_bitrate = self.config.audio_bitrate
+        bitrate = self.config.target_bitrate
+        ffmpeg_params: List[str] = ['-movflags', '+faststart']  # better playback start
+        
+        # CRF if no explicit target bitrate and CPU codec
+        if codec in ('libx264', 'libx265'):
+            if not bitrate:
+                ffmpeg_params += ['-crf', f'{self.config.crf}']
+            # Ensure compatibility pixel format
+            ffmpeg_params += ['-pix_fmt', 'yuv420p']
+        
+        # NVENC specific tweaks can be added here if needed
+        return {
+            'codec': codec,
+            'audio_codec': 'aac',
+            'preset': preset,
+            'threads': threads,
+            'bitrate': bitrate,
+            'audio_bitrate': audio_bitrate,
+            'ffmpeg_params': ffmpeg_params,
+        }
+
+    def _candidate_codecs(self) -> List[str]:
+        """Return a prioritized list of codecs to try for faster encoding."""
+        candidates: List[str] = []
+        if getattr(self.config, 'prefer_gpu_encoding', False):
+            candidates.extend(self.config.gpu_codecs)
+        # Always fall back to CPU x264, which is widely available
+        candidates.append('libx264')
+        return candidates
     
     def _write_video_with_progress(self, video_clip, output_path: str, progress_callback: Optional[Callable[[str, float], None]] = None) -> None:
         """Write video file with detailed progress tracking.
@@ -275,21 +368,45 @@ class VideoService:
         import time
         import os
         
-        if not progress_callback:
-            # Fallback to basic write if no progress callback
+        # Helper to attempt write with a specific codec
+        def attempt_write(codec: str) -> None:
+            params = self._build_encoding_params(codec)
+            # Call MoviePy with our tuned parameters
             video_clip.write_videofile(
                 output_path,
-                codec='libx264',
-                audio_codec='aac',
+                codec=params['codec'],
+                audio_codec=params['audio_codec'],
+                preset=params['preset'],
+                threads=params['threads'],
+                bitrate=params['bitrate'],
+                audio_bitrate=params['audio_bitrate'],
+                ffmpeg_params=params['ffmpeg_params'],
                 verbose=False,
                 logger=None
             )
-            return
         
-        # Estimate output file size based on video duration and bitrate
-        video_duration = video_clip.duration
-        estimated_bitrate = 2000  # kbps (reasonable estimate for H.264)
-        estimated_size_mb = (video_duration * estimated_bitrate) / (8 * 1024)  # Convert to MB
+        if not progress_callback:
+            # Fallback to basic write with fast params if no progress callback
+            last_error: Optional[Exception] = None
+            for codec in self._candidate_codecs():
+                try:
+                    attempt_write(codec)
+                    return
+                except Exception as e:
+                    last_error = e
+                    # Clean up partial file before next attempt
+                    try:
+                        if os.path.exists(output_path):
+                            os.remove(output_path)
+                    except Exception:
+                        pass
+            # If all attempts failed, raise last error
+            raise last_error if last_error else RuntimeError('Failed to encode video')
+        
+        # Estimate output file size based on duration and target/estimated bitrate
+        video_duration = video_clip.duration or 0
+        target_kbps = self._parse_bitrate_kbps(self.config.target_bitrate) or 2000.0
+        estimated_size_mb = (video_duration * target_kbps) / (8 * 1024)  # Convert to MB
         
         # Progress tracking variables
         start_time = time.time()
@@ -345,30 +462,182 @@ class VideoService:
         progress_thread = threading.Thread(target=progress_monitor, daemon=True)
         progress_thread.start()
         
+        last_error: Optional[Exception] = None
         try:
-            # Write the video file
-            video_clip.write_videofile(
-                output_path,
-                codec='libx264',
-                audio_codec='aac',
-                verbose=False,
-                logger=None
-            )
-            
-            # Final progress update
-            if os.path.exists(output_path):
-                final_size_mb = os.path.getsize(output_path) / (1024 * 1024)
-                total_time = time.time() - start_time
-                avg_speed = final_size_mb / total_time if total_time > 0 else 0
-                
-                detail = f"Encoding complete: {final_size_mb:.1f}MB written in {total_time:.1f}s (avg: {avg_speed:.1f}MB/s)"
-                progress_callback("Video file written successfully", 0.95, detail)
-            
+            for idx, codec in enumerate(self._candidate_codecs()):
+                try:
+                    # Inform about codec choice
+                    progress_callback("Writing output video file...", 0.8, f"Using codec: {codec} (attempt {idx+1})")
+                    attempt_write(codec)
+                    # Final progress update
+                    if os.path.exists(output_path):
+                        final_size_mb = os.path.getsize(output_path) / (1024 * 1024)
+                        total_time = time.time() - start_time
+                        avg_speed = final_size_mb / total_time if total_time > 0 else 0
+                        
+                        detail = f"Encoding complete: {final_size_mb:.1f}MB written in {total_time:.1f}s (avg: {avg_speed:.1f}MB/s)"
+                        progress_callback("Video file written successfully", 0.95, detail)
+                    return
+                except Exception as e:
+                    last_error = e
+                    # Inform and try next codec
+                    progress_callback("Writing output video file...", 0.85, f"Codec {codec} failed, trying next... ({e})")
+                    # Remove partial file to avoid confusion
+                    try:
+                        if os.path.exists(output_path):
+                            os.remove(output_path)
+                    except Exception:
+                        pass
+            # If exhausted all codecs
+            raise last_error if last_error else RuntimeError('Failed to encode video')
         finally:
             # Stop progress monitoring
             progress_active.clear()
             if progress_thread.is_alive():
                 progress_thread.join(timeout=2.0)
+
+    def _fast_trim_stream_copy(self, video_path: str, active_ranges: List[Tuple[float, float]], output_path: str, 
+                               progress_callback: Optional[Callable[[str, float, Optional[str]], None]] = None) -> None:
+        """Perform fast trimming using FFmpeg stream copy (no re-encode).
+        
+        This method cuts segments using keyframe-aligned seeking and concatenates them without re-encoding.
+        It is very fast but cuts may be slightly off if start times are not near keyframes.
+        """
+        # Ensure output file doesn't exist to prevent append issues
+        if os.path.exists(output_path):
+            print(f"DEBUG: Removing existing output file: {output_path}")
+            try:
+                os.remove(output_path)
+            except Exception as e:
+                print(f"DEBUG: Could not remove existing output file: {e}")
+        
+        # Ensure FFmpeg is available
+        try:
+            FFmpegUtils.check_ffmpeg_and_raise()
+        except FFmpegError as e:
+            raise RuntimeError(str(e))
+        
+        # Debug: Print active ranges before processing
+        print(f"DEBUG: Processing {len(active_ranges)} active ranges:")
+        for i, (start, end) in enumerate(active_ranges):
+            print(f"  Range {i+1}: {start:.3f}s - {end:.3f}s (duration: {end-start:.3f}s)")
+        
+        # Check for potential duplicates or overlaps
+        for i in range(len(active_ranges)):
+            for j in range(i+1, len(active_ranges)):
+                start1, end1 = active_ranges[i]
+                start2, end2 = active_ranges[j]
+                if (start1 == start2 and end1 == end2):
+                    print(f"DEBUG: WARNING - Duplicate ranges found: Range {i+1} and Range {j+1}")
+                elif not (end1 <= start2 or end2 <= start1):  # Overlapping
+                    overlap_start = max(start1, start2)
+                    overlap_end = min(end1, end2)
+                    print(f"DEBUG: WARNING - Overlapping ranges: Range {i+1} and Range {j+1}, overlap: {overlap_start:.3f}s - {overlap_end:.3f}s")
+        
+        # Prepare temporary directory for segment files
+        temp_dir = tempfile.mkdtemp(prefix="fasttrim_")
+        segments: List[str] = []
+        list_file_path = os.path.join(temp_dir, "concat_list.txt")
+        
+        # Create segments
+        total = len(active_ranges)
+        prev_end: Optional[float] = None
+        overlap_guard = 0.02  # 20 ms guard to prevent duplicated content at joins
+        for idx, (start, end) in enumerate(active_ranges, start=1):
+            start = max(0.0, float(start))
+            end = max(start, float(end))
+            # Prevent overlaps that can cause repeated content due to keyframe snapping
+            if prev_end is not None and start < prev_end + overlap_guard:
+                start = min(end, prev_end + overlap_guard)
+            duration = max(0.0, end - start)
+            if duration <= 0:
+                prev_end = end
+                continue
+            seg_path = os.path.join(temp_dir, f"seg_{idx:04d}.ts")
+            # Build ffmpeg command to copy streams into MPEG-TS
+            # Use output seeking (-ss after -i) for more precise cuts at the cost of some speed
+            cmd = [
+                'ffmpeg', '-y',
+                '-i', video_path,
+                '-ss', f'{start:.3f}',  # Output seeking for precision
+                '-t', f'{duration:.3f}',
+                '-c', 'copy',
+                '-avoid_negative_ts', 'make_zero',
+                '-reset_timestamps', '1',
+                '-muxdelay', '0',
+                '-muxpreload', '0',
+                '-f', 'mpegts',
+                seg_path
+            ]
+            print(f"DEBUG: Cutting segment {idx}: {start:.3f}s-{end:.3f}s (duration: {duration:.3f}s)")
+            print(f"DEBUG: FFmpeg command: {' '.join(cmd)}")
+            if progress_callback:
+                progress_callback("Cutting segments (fast mode)...", 0.25 + 0.45 * (idx-1)/max(1,total), f"Segment {idx}/{total}: {start:.2f}s → {end:.2f}s")
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                # Cleanup partial segments before raising
+                stderr_tail = (result.stderr or '')[-500:]
+                self._cleanup_fasttrim(temp_dir)
+                raise RuntimeError(f"FFmpeg failed to cut segment {idx}: {stderr_tail}")
+            segments.append(seg_path)
+            prev_end = end
+        
+        if not segments:
+            self._cleanup_fasttrim(temp_dir)
+            raise RuntimeError("No segments were created for fast trim")
+        
+        # Write concat list file
+        with open(list_file_path, 'w', encoding='utf-8') as f:
+            print(f"DEBUG: Writing concat list with {len(segments)} segments:")
+            for i, seg in enumerate(segments):
+                # ffmpeg concat demuxer expects: file 'path'
+                f.write(f"file '{seg}'\n")
+                print(f"  Segment {i+1}: {seg}")
+        
+        # Debug: Show concat list contents
+        print(f"DEBUG: Concat list file contents:")
+        with open(list_file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            print(content)
+        
+        # Build concat command
+        def run_concat(use_bsf: bool) -> subprocess.CompletedProcess:
+            concat_cmd = [
+                'ffmpeg', '-y',
+                '-f', 'concat', '-safe', '0',
+                '-i', list_file_path,
+                '-fflags', '+genpts',
+                '-c', 'copy'
+            ]
+            if use_bsf:
+                concat_cmd += ['-bsf:a', 'aac_adtstoasc']
+            concat_cmd += [output_path]
+            return subprocess.run(concat_cmd, capture_output=True, text=True)
+        
+        if progress_callback:
+            progress_callback("Concatenating segments (fast mode)...", 0.72, None)
+        
+        result = run_concat(use_bsf=True)
+        if result.returncode != 0:
+            # Try again without audio bitstream filter (for non-AAC audio)
+            result2 = run_concat(use_bsf=False)
+            if result2.returncode != 0:
+                stderr_tail = (result2.stderr or result.stderr or '')[-800:]
+                self._cleanup_fasttrim(temp_dir)
+                raise RuntimeError(f"FFmpeg concat failed: {stderr_tail}")
+        
+        # Cleanup temporary files
+        self._cleanup_fasttrim(temp_dir)
+        
+        if progress_callback:
+            progress_callback("Fast trim output written", 0.95, None)
+
+    def _cleanup_fasttrim(self, temp_dir: str) -> None:
+        try:
+            if os.path.isdir(temp_dir):
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except Exception:
+            pass
     
     def generate_output_filename(self, input_path: str, suffix: str = "_trimmed") -> str:
         """Generate an output filename based on the input filename.
