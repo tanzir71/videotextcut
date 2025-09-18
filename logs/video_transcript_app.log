@@ -1,0 +1,321 @@
+2025-09-18 12:36:00,363 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 12:36:00,372 - root - INFO - Created directory: logs
+2025-09-18 12:36:00,373 - root - INFO - Created directory: temp
+2025-09-18 12:36:00,373 - root - INFO - Created directory: output
+2025-09-18 12:36:00,374 - root - INFO - Created directory: backups
+2025-09-18 12:36:00,374 - root - INFO - Initializing application services...
+2025-09-18 12:36:01,006 - root - INFO - Services initialized successfully
+2025-09-18 12:36:01,100 - root - ERROR - Unexpected error: VideoTranscriptApp.__init__() got an unexpected keyword argument 'transcript_service'
+Traceback (most recent call last):
+  File "C:\Users\tanzir\Desktop\videotextcut\main.py", line 254, in main
+    app = VideoTranscriptApp(
+        root,
+    ...<2 lines>...
+        filler_detector=filler_detector
+    )
+TypeError: VideoTranscriptApp.__init__() got an unexpected keyword argument 'transcript_service'
+2025-09-18 12:36:44,505 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 12:36:44,513 - root - INFO - Created directory: logs
+2025-09-18 12:36:44,514 - root - INFO - Created directory: temp
+2025-09-18 12:36:44,514 - root - INFO - Created directory: output
+2025-09-18 12:36:44,514 - root - INFO - Created directory: backups
+2025-09-18 12:36:44,515 - root - INFO - Initializing application services...
+2025-09-18 12:36:45,113 - root - INFO - Services initialized successfully
+2025-09-18 12:36:45,796 - root - ERROR - Unexpected error: 'AppConfig' object has no attribute 'gui_colors'
+Traceback (most recent call last):
+  File "C:\Users\tanzir\Desktop\videotextcut\main.py", line 254, in main
+    app = VideoTranscriptApp()
+  File "C:\Users\tanzir\Desktop\videotextcut\gui.py", line 78, in __init__
+    self.setup_gui()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\tanzir\Desktop\videotextcut\gui.py", line 85, in setup_gui
+    self.root.configure(bg=self.config.gui_colors['background'])
+                           ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'AppConfig' object has no attribute 'gui_colors'
+2025-09-18 12:37:24,645 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 12:37:24,654 - root - INFO - Created directory: logs
+2025-09-18 12:37:24,654 - root - INFO - Created directory: temp
+2025-09-18 12:37:24,654 - root - INFO - Created directory: output
+2025-09-18 12:37:24,655 - root - INFO - Created directory: backups
+2025-09-18 12:37:24,655 - root - INFO - Initializing application services...
+2025-09-18 12:37:25,259 - root - INFO - Services initialized successfully
+2025-09-18 12:37:25,972 - root - INFO - Starting GUI...
+2025-09-18 12:37:40,839 - root - INFO - Application closing...
+2025-09-18 12:37:40,870 - root - INFO - Application closed successfully
+2025-09-18 13:08:06,782 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 13:08:06,791 - root - INFO - Created directory: logs
+2025-09-18 13:08:06,791 - root - INFO - Created directory: temp
+2025-09-18 13:08:06,792 - root - INFO - Created directory: output
+2025-09-18 13:08:06,792 - root - INFO - Created directory: backups
+2025-09-18 13:08:06,792 - root - INFO - Initializing application services...
+2025-09-18 13:08:07,331 - root - INFO - Services initialized successfully
+2025-09-18 13:08:07,973 - root - INFO - Starting GUI...
+2025-09-18 13:08:10,824 - root - INFO - Application closing...
+2025-09-18 13:08:10,848 - root - INFO - Application closed successfully
+2025-09-18 13:08:23,731 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 13:08:23,741 - root - INFO - Created directory: logs
+2025-09-18 13:08:23,741 - root - INFO - Created directory: temp
+2025-09-18 13:08:23,742 - root - INFO - Created directory: output
+2025-09-18 13:08:23,742 - root - INFO - Created directory: backups
+2025-09-18 13:08:23,742 - root - INFO - Initializing application services...
+2025-09-18 13:08:24,284 - root - INFO - Services initialized successfully
+2025-09-18 13:08:24,907 - root - INFO - Starting GUI...
+2025-09-18 13:09:08,254 - root - INFO - Application closing...
+2025-09-18 13:09:08,278 - root - INFO - Application closed successfully
+2025-09-18 13:11:27,192 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 13:11:27,200 - root - INFO - Created directory: logs
+2025-09-18 13:11:27,201 - root - INFO - Created directory: temp
+2025-09-18 13:11:27,201 - root - INFO - Created directory: output
+2025-09-18 13:11:27,201 - root - INFO - Created directory: backups
+2025-09-18 13:11:27,202 - root - INFO - Initializing application services...
+2025-09-18 13:11:27,769 - root - INFO - Services initialized successfully
+2025-09-18 13:11:28,396 - root - INFO - Starting GUI...
+2025-09-18 13:11:38,043 - py.warnings - WARNING - C:\Users\tanzir\AppData\Roaming\Python\Python313\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+2025-09-18 13:38:29,050 - root - INFO - Application closing...
+2025-09-18 13:38:29,122 - root - INFO - Application closed successfully
+2025-09-18 13:38:57,680 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 13:38:57,688 - root - INFO - Created directory: logs
+2025-09-18 13:38:57,689 - root - INFO - Created directory: temp
+2025-09-18 13:38:57,689 - root - INFO - Created directory: output
+2025-09-18 13:38:57,689 - root - INFO - Created directory: backups
+2025-09-18 13:38:57,690 - root - INFO - Initializing application services...
+2025-09-18 13:38:58,242 - root - INFO - Services initialized successfully
+2025-09-18 13:38:58,846 - root - INFO - Starting GUI...
+2025-09-18 13:39:12,704 - py.warnings - WARNING - C:\Users\tanzir\AppData\Roaming\Python\Python313\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+2025-09-18 13:42:34,743 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 13:42:53,234 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 13:42:53,234 - root - INFO - Created directory: logs
+2025-09-18 13:42:53,234 - root - INFO - Created directory: temp
+2025-09-18 13:42:53,234 - root - INFO - Created directory: output
+2025-09-18 13:42:53,235 - root - INFO - Created directory: backups
+2025-09-18 13:42:53,235 - root - INFO - Initializing application services...
+2025-09-18 13:42:53,236 - root - ERROR - Unexpected error: FFmpeg is required but not found on your system.
+
+FFmpeg is needed for video processing operations including:
+• Audio extraction from video files
+• Video format conversion
+• Video trimming and editing
+
+FFmpeg Installation Instructions for Windows:
+
+Option 1 - Using Chocolatey (Recommended):
+1. Install Chocolatey from https://chocolatey.org/install
+2. Open PowerShell as Administrator
+3. Run: choco install ffmpeg
+
+Option 2 - Manual Installation:
+1. Download FFmpeg from https://ffmpeg.org/download.html
+2. Extract the files to C:\ffmpeg
+3. Add C:\ffmpeg\bin to your system PATH
+4. Restart your command prompt/application
+
+Option 3 - Using Scoop:
+1. Install Scoop from https://scoop.sh/
+2. Run: scoop install ffmpeg
+
+After installation, restart this application.
+Traceback (most recent call last):
+  File "C:\Users\tanzir\Desktop\videotextcut\transcript_service.py", line 24, in _check_dependencies
+    FFmpegUtils.check_ffmpeg_and_raise()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\tanzir\Desktop\videotextcut\ffmpeg_utils.py", line 126, in check_ffmpeg_and_raise
+    raise FFmpegError(error_msg)
+ffmpeg_utils.FFmpegError: FFmpeg is required but not found on your system.
+
+FFmpeg is needed for video processing operations including:
+• Audio extraction from video files
+• Video format conversion
+• Video trimming and editing
+
+FFmpeg Installation Instructions for Windows:
+
+Option 1 - Using Chocolatey (Recommended):
+1. Install Chocolatey from https://chocolatey.org/install
+2. Open PowerShell as Administrator
+3. Run: choco install ffmpeg
+
+Option 2 - Manual Installation:
+1. Download FFmpeg from https://ffmpeg.org/download.html
+2. Extract the files to C:\ffmpeg
+3. Add C:\ffmpeg\bin to your system PATH
+4. Restart your command prompt/application
+
+Option 3 - Using Scoop:
+1. Install Scoop from https://scoop.sh/
+2. Run: scoop install ffmpeg
+
+After installation, restart this application.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tanzir\Desktop\videotextcut\main.py", line 263, in main
+    transcript_service, video_service, filler_detector = initialize_services()
+                                                         ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\tanzir\Desktop\videotextcut\main.py", line 211, in initialize_services
+    transcript_service = TranscriptService()
+  File "C:\Users\tanzir\Desktop\videotextcut\transcript_service.py", line 18, in __init__
+    self._check_dependencies()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\tanzir\Desktop\videotextcut\transcript_service.py", line 26, in _check_dependencies
+    raise RuntimeError(str(e))
+RuntimeError: FFmpeg is required but not found on your system.
+
+FFmpeg is needed for video processing operations including:
+• Audio extraction from video files
+• Video format conversion
+• Video trimming and editing
+
+FFmpeg Installation Instructions for Windows:
+
+Option 1 - Using Chocolatey (Recommended):
+1. Install Chocolatey from https://chocolatey.org/install
+2. Open PowerShell as Administrator
+3. Run: choco install ffmpeg
+
+Option 2 - Manual Installation:
+1. Download FFmpeg from https://ffmpeg.org/download.html
+2. Extract the files to C:\ffmpeg
+3. Add C:\ffmpeg\bin to your system PATH
+4. Restart your command prompt/application
+
+Option 3 - Using Scoop:
+1. Install Scoop from https://scoop.sh/
+2. Run: scoop install ffmpeg
+
+After installation, restart this application.
+2025-09-18 13:47:17,525 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 15:01:28,545 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 15:01:28,581 - root - INFO - Created directory: logs
+2025-09-18 15:01:28,582 - root - INFO - Created directory: temp
+2025-09-18 15:01:28,582 - root - INFO - Created directory: output
+2025-09-18 15:01:28,582 - root - INFO - Created directory: backups
+2025-09-18 15:01:28,582 - root - INFO - Initializing application services...
+2025-09-18 15:01:29,166 - root - INFO - Services initialized successfully
+2025-09-18 15:01:29,813 - root - INFO - Starting GUI...
+2025-09-18 15:01:39,055 - py.warnings - WARNING - C:\Users\tanzir\AppData\Roaming\Python\Python313\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+2025-09-18 15:03:33,485 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 15:04:12,063 - root - INFO - Application closing...
+2025-09-18 15:04:12,156 - root - INFO - Application closed successfully
+2025-09-18 15:04:51,521 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 15:04:51,557 - root - INFO - Created directory: logs
+2025-09-18 15:04:51,558 - root - INFO - Created directory: temp
+2025-09-18 15:04:51,558 - root - INFO - Created directory: output
+2025-09-18 15:04:51,559 - root - INFO - Created directory: backups
+2025-09-18 15:04:51,559 - root - INFO - Initializing application services...
+2025-09-18 15:04:52,170 - root - INFO - Services initialized successfully
+2025-09-18 15:04:52,809 - root - INFO - Starting GUI...
+2025-09-18 15:05:03,855 - py.warnings - WARNING - C:\Users\tanzir\AppData\Roaming\Python\Python313\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+2025-09-18 15:08:18,018 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 15:08:18,072 - root - INFO - Created directory: logs
+2025-09-18 15:08:18,073 - root - INFO - Created directory: temp
+2025-09-18 15:08:18,073 - root - INFO - Created directory: output
+2025-09-18 15:08:18,074 - root - INFO - Created directory: backups
+2025-09-18 15:08:18,074 - root - INFO - Initializing application services...
+2025-09-18 15:08:18,854 - root - INFO - Services initialized successfully
+2025-09-18 15:08:19,685 - root - INFO - Starting GUI...
+2025-09-18 15:08:24,047 - root - INFO - Application closing...
+2025-09-18 15:08:24,179 - root - INFO - Application closed successfully
+2025-09-18 15:09:03,864 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 15:09:03,911 - root - INFO - Created directory: logs
+2025-09-18 15:09:03,911 - root - INFO - Created directory: temp
+2025-09-18 15:09:03,911 - root - INFO - Created directory: output
+2025-09-18 15:09:03,912 - root - INFO - Created directory: backups
+2025-09-18 15:09:03,912 - root - INFO - Initializing application services...
+2025-09-18 15:09:04,693 - root - INFO - Services initialized successfully
+2025-09-18 15:09:05,644 - root - INFO - Starting GUI...
+2025-09-18 15:09:10,696 - root - INFO - Application closing...
+2025-09-18 15:09:10,852 - root - INFO - Application closed successfully
+2025-09-18 15:09:44,262 - py.warnings - WARNING - C:\Users\tanzir\AppData\Roaming\Python\Python313\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+2025-09-18 15:13:16,349 - root - INFO - Application closing...
+2025-09-18 15:13:16,419 - root - INFO - Application closed successfully
+2025-09-18 15:19:43,189 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 15:19:43,230 - root - INFO - Created directory: logs
+2025-09-18 15:19:43,231 - root - INFO - Created directory: temp
+2025-09-18 15:19:43,231 - root - INFO - Created directory: output
+2025-09-18 15:19:43,231 - root - INFO - Created directory: backups
+2025-09-18 15:19:43,232 - root - INFO - Initializing application services...
+2025-09-18 15:19:43,857 - root - INFO - Services initialized successfully
+2025-09-18 15:19:44,507 - root - INFO - Starting GUI...
+2025-09-18 15:19:54,595 - py.warnings - WARNING - C:\Users\tanzir\AppData\Roaming\Python\Python313\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+2025-09-18 15:29:01,581 - root - INFO - Application closing...
+2025-09-18 15:29:01,720 - root - INFO - Application closed successfully
+2025-09-18 15:30:21,075 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 15:30:21,111 - root - INFO - Created directory: logs
+2025-09-18 15:30:21,111 - root - INFO - Created directory: temp
+2025-09-18 15:30:21,112 - root - INFO - Created directory: output
+2025-09-18 15:30:21,112 - root - INFO - Created directory: backups
+2025-09-18 15:30:21,112 - root - INFO - Initializing application services...
+2025-09-18 15:30:21,719 - root - INFO - Services initialized successfully
+2025-09-18 15:30:22,353 - root - INFO - Starting GUI...
+2025-09-18 15:31:13,364 - py.warnings - WARNING - C:\Users\tanzir\AppData\Roaming\Python\Python313\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+2025-09-18 15:40:22,704 - root - INFO - Application closing...
+2025-09-18 15:40:22,758 - root - INFO - Application closed successfully
+2025-09-18 15:40:42,636 - root - INFO - Starting Video Transcript Editor...
+2025-09-18 15:40:42,677 - root - INFO - Created directory: logs
+2025-09-18 15:40:42,677 - root - INFO - Created directory: temp
+2025-09-18 15:40:42,677 - root - INFO - Created directory: output
+2025-09-18 15:40:42,678 - root - INFO - Created directory: backups
+2025-09-18 15:40:42,678 - root - INFO - Initializing application services...
+2025-09-18 15:40:43,279 - root - INFO - Services initialized successfully
+2025-09-18 15:40:43,925 - root - INFO - Starting GUI...
+2025-09-18 15:41:10,946 - py.warnings - WARNING - C:\Users\tanzir\Desktop\videotextcut\transcript_service.py:251: FutureWarning: get_duration() keyword argument 'filename' has been renamed to 'path' in version 0.10.0.
+	This alias will be removed in version 1.0.
+  audio_duration = librosa.get_duration(filename=audio_path)
+
+2025-09-18 15:41:10,948 - py.warnings - WARNING - C:\Users\tanzir\AppData\Roaming\Python\Python313\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+2025-09-18 15:47:32,833 - root - INFO - Application closing...
+2025-09-18 15:47:32,885 - root - INFO - Application closed successfully
+2025-09-18 15:48:44,908 - root - INFO - Starting VideoTextCut...
+2025-09-18 15:48:44,951 - root - INFO - Created directory: logs
+2025-09-18 15:48:44,951 - root - INFO - Created directory: temp
+2025-09-18 15:48:44,952 - root - INFO - Created directory: output
+2025-09-18 15:48:44,952 - root - INFO - Created directory: backups
+2025-09-18 15:48:44,952 - root - INFO - Initializing application services...
+2025-09-18 15:48:45,572 - root - INFO - Services initialized successfully
+2025-09-18 15:48:46,184 - root - ERROR - Unexpected error: '_tkinter.tkapp' object has no attribute 'wm_class'
+Traceback (most recent call last):
+  File "C:\Users\tanzir\Desktop\videotextcut\main.py", line 277, in main
+    app = VideoTranscriptApp(root)
+  File "C:\Users\tanzir\Desktop\videotextcut\gui.py", line 147, in __init__
+    self.setup_gui(root)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\tanzir\Desktop\videotextcut\gui.py", line 175, in setup_gui
+    self.root.wm_class("VideoTextCut", "VideoTextCut")
+    ^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\tkinter\__init__.py", line 2546, in __getattr__
+    return getattr(self.tk, attr)
+AttributeError: '_tkinter.tkapp' object has no attribute 'wm_class'
+2025-09-18 15:49:05,914 - root - INFO - Starting VideoTextCut...
+2025-09-18 15:49:05,950 - root - INFO - Created directory: logs
+2025-09-18 15:49:05,950 - root - INFO - Created directory: temp
+2025-09-18 15:49:05,950 - root - INFO - Created directory: output
+2025-09-18 15:49:05,951 - root - INFO - Created directory: backups
+2025-09-18 15:49:05,951 - root - INFO - Initializing application services...
+2025-09-18 15:49:06,543 - root - INFO - Services initialized successfully
+2025-09-18 15:49:07,192 - root - INFO - Starting GUI...
+2025-09-18 15:49:21,270 - py.warnings - WARNING - C:\Users\tanzir\Desktop\videotextcut\transcript_service.py:251: FutureWarning: get_duration() keyword argument 'filename' has been renamed to 'path' in version 0.10.0.
+	This alias will be removed in version 1.0.
+  audio_duration = librosa.get_duration(filename=audio_path)
+
+2025-09-18 15:49:21,272 - py.warnings - WARNING - C:\Users\tanzir\AppData\Roaming\Python\Python313\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+2025-09-18 15:50:37,218 - root - INFO - Application closing...
+2025-09-18 15:50:37,288 - root - INFO - Application closed successfully
